@@ -23,6 +23,7 @@
 
   <!-- ✅ App-UI -->
   <main id="app-content" style="display: none;">
+    <!-- 🧺 Kleidungsstück hinzufügen -->
     <section>
       <h2>👚 Kleidungsstück hinzufügen</h2>
 
@@ -62,7 +63,7 @@
 
     <hr />
 
-    <!-- 🎲 Generator -->
+    <!-- 🎲 Outfit Generator -->
     <section>
       <h2>🎲 Outfit Generator</h2>
       <input type="text" id="occasion" placeholder="Anlass eingeben (z.B. Sport, Hochzeit)" />
@@ -72,7 +73,26 @@
 
     <hr />
 
-    <!-- ➕ Neue Optionen -->
+    <!-- 📅 Kalender: Geplante Outfits -->
+    <section>
+      <h2>📅 Geplante Outfits</h2>
+      <input type="date" id="calendar-date" />
+      <button id="load-day">Outfit anzeigen</button>
+      <div id="calendar-result"></div>
+    </section>
+
+    <hr />
+
+    <!-- ❤️ Gelikte Outfits -->
+    <section>
+      <h2>❤️ Lieblingsoutfits</h2>
+      <button id="load-liked">Alle anzeigen</button>
+      <div id="liked-outfits"></div>
+    </section>
+
+    <hr />
+
+    <!-- ➕ Neue Optionen hinzufügen -->
     <section>
       <h2>➕ Neue Auswahloption hinzufügen</h2>
       <select id="add-target">
