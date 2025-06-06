@@ -1,10 +1,10 @@
 const SUPABASE_URL = 'https://crwtuozpzgykmcocpkwa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyd3R1b3pwemd5a21jb2Nwa3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTU4MjksImV4cCI6MjA2NDE5MTgyOX0.-U59i0IWdbZhqGhSWzBoLV--uzuFWPbJgwKLNUkx9yM';
-
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let user = null;
 const lookups = {};
+const selected = {};
 
 document.getElementById('login').onclick = async () => {
   const email = document.getElementById('email').value;
@@ -13,6 +13,7 @@ document.getElementById('login').onclick = async () => {
   if (error) return alert('Login fehlgeschlagen');
   user = data.user;
   document.getElementById('auth-status').textContent = `Angemeldet als ${user.email}`;
+  document.getElementById('app-content').style.display = 'block';
 };
 
 document.getElementById('signup').onclick = async () => {
@@ -26,75 +27,78 @@ document.getElementById('signup').onclick = async () => {
 function interpretCategoryFromOccasion(text) {
   const val = text.toLowerCase();
   if (val.includes('sport')) return 'Sportlich';
-  if (val.includes('hochzeit') || val.includes('abend')) return 'Elegant';
-  if (val.includes('büro') || val.includes('arbeit')) return 'Business';
-  if (val.includes('freunde') || val.includes('spazieren')) return 'Casual';
+  if (val.includes('hochzeit')) return 'Elegant';
+  if (val.includes('büro')) return 'Business';
   return 'Casual';
 }
 
-async function loadOptions(table, targetId) {
+async function loadOptions(table) {
   const { data } = await supabase.from(table).select('*');
+  lookups[table] = {};
+  const container = document.getElementById(table);
   data.forEach(item => {
-    lookups[table] = lookups[table] || {};
     lookups[table][item.id] = item;
-    const opt = document.createElement('option');
-    opt.value = item.id;
-    opt.textContent = `${item.icon || ''} ${item.label || item.name}`;
-    document.getElementById(targetId).appendChild(opt);
+    const btn = document.createElement('button');
+    btn.className = 'icon-btn';
+    btn.innerHTML = item.icon + '<br>' + (item.label || item.name);
+    btn.onclick = () => {
+      selected[table] = item.id;
+      [...container.children].forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    container.appendChild(btn);
   });
 }
 
-async function loadAllLookups() {
-  await Promise.all([
-    loadOptions('clothing_types', 'clothing_type_id'),
-    loadOptions('brands', 'brand_id'),
-    loadOptions('categories', 'category_id'),
-    loadOptions('colors', 'color_id'),
-    loadOptions('fabrics', 'fabric_id'),
-    loadOptions('patterns', 'pattern_id'),
-    loadOptions('fits', 'fit_id')
-  ]);
+async function loadAll() {
+  await loadOptions('clothing_types');
+  await loadOptions('brands');
+  await loadOptions('categories');
+  await loadOptions('colors');
+  await loadOptions('fabrics');
+  await loadOptions('patterns');
+  await loadOptions('fits');
 }
-loadAllLookups();
+loadAll();
 
-document.getElementById('add-clothing-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!user) return alert('Bitte zuerst anmelden.');
-  const fields = ['clothing_type_id', 'brand_id', 'category_id', 'color_id', 'fabric_id', 'pattern_id', 'fit_id'];
-  const data = { user_id: user.id };
-  fields.forEach(id => data[id] = document.getElementById(id).value);
-  const { error } = await supabase.from('wardrobe_items').insert([data]);
-  if (error) return alert('Fehler beim Hinzufügen');
-  alert('Kleidungsstück hinzugefügt');
-  e.target.reset();
-});
+document.getElementById('add-clothing').onclick = async () => {
+  if (!user) return alert('Bitte anmelden.');
+  const item = {
+    user_id: user.id,
+    clothing_type_id: selected.clothing_types,
+    brand_id: selected.brands,
+    category_id: selected.categories,
+    color_id: selected.colors,
+    fabric_id: selected.fabrics,
+    pattern_id: selected.patterns,
+    fit_id: selected.fits
+  };
+  const { error } = await supabase.from('wardrobe_items').insert([item]);
+  if (error) return alert('Fehler beim Speichern');
+  alert('Kleidungsstück gespeichert!');
+};
 
 document.getElementById('generate-outfit').onclick = async () => {
-  if (!user) return alert('Bitte anmelden');
-  const input = document.getElementById('occasion').value;
-  const categoryLabel = interpretCategoryFromOccasion(input);
-  const categoryEntry = Object.values(lookups.categories).find(c => c.name === categoryLabel);
-  if (!categoryEntry) return alert('Kategorie nicht gefunden');
+  if (!user) return alert('Bitte anmelden.');
+  const occasion = document.getElementById('occasion').value;
+  const catName = interpretCategoryFromOccasion(occasion);
+  const category = Object.values(lookups.categories).find(c => c.name === catName);
+  if (!category) return alert('Kategorie nicht gefunden');
 
-  const { data } = await supabase
-    .from('wardrobe_items')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('category_id', categoryEntry.id);
-
-  if (!data.length) return alert('Keine Kleidung für diesen Anlass gefunden');
-
-  const resultDiv = document.getElementById('outfit-result');
-  resultDiv.innerHTML = `<h3>Outfit-Vorschlag für "${input}":</h3>`;
+  const { data } = await supabase.from('wardrobe_items').select('*').eq('user_id', user.id).eq('category_id', category.id);
+  const result = document.getElementById('outfit-result');
+  result.innerHTML = `<h3>Outfit für "${occasion}":</h3>`;
   data.forEach(item => {
-    const type = lookups.clothing_types[item.clothing_type_id]?.label || 'Typ';
-    const brand = lookups.brands[item.brand_id]?.name || 'Marke';
-    const color = lookups.colors[item.color_id]?.name || 'Farbe';
-    const fabric = lookups.fabrics[item.fabric_id]?.name || 'Stoff';
-    const pattern = lookups.patterns[item.pattern_id]?.name || 'Muster';
-    const fit = lookups.fits[item.fit_id]?.name || 'Schnitt';
+    const out = [
+      lookups.clothing_types[item.clothing_type_id]?.label,
+      lookups.brands[item.brand_id]?.name,
+      lookups.colors[item.color_id]?.name,
+      lookups.fabrics[item.fabric_id]?.name,
+      lookups.patterns[item.pattern_id]?.name,
+      lookups.fits[item.fit_id]?.name
+    ].filter(Boolean).join(" | ");
     const p = document.createElement('p');
-    p.textContent = `${type} | ${brand} | ${color} | ${fabric} | ${pattern} | ${fit}`;
-    resultDiv.appendChild(p);
+    p.textContent = out;
+    result.appendChild(p);
   });
 };
