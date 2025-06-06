@@ -1,15 +1,14 @@
-// Supabase Initialisierung
+// Supabase-Verbindung
 const SUPABASE_URL = 'https://crwtuozpzgykmcocpkwa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyd3R1b3pwemd5a21jb2Nwa3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTU4MjksImV4cCI6MjA2NDE5MTgyOX0.-U59i0IWdbZhqGhSWzBoLV--uzuFWPbJgwKLNUkx9yM';
-
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Variablen
+// Statusvariablen
 let user = null;
 const lookups = {};
 const selected = {};
 
-// Auth: Login
+// 🔐 Login
 document.getElementById('login').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -26,7 +25,7 @@ document.getElementById('login').onclick = async () => {
   document.getElementById('app-content').style.display = 'block';
 };
 
-// Auth: Registrierung
+// 🔐 Registrierung
 document.getElementById('signup').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -41,16 +40,7 @@ document.getElementById('signup').onclick = async () => {
   alert('Registrierung erfolgreich. Bitte E-Mail bestätigen.');
 };
 
-// Kategorien interpretieren aus Freitext
-function interpretCategoryFromOccasion(text) {
-  const t = text.toLowerCase();
-  if (t.includes('hochzeit') || t.includes('abend')) return 'Elegant';
-  if (t.includes('büro') || t.includes('arbeit')) return 'Business';
-  if (t.includes('sport')) return 'Sportlich';
-  return 'Casual';
-}
-
-// Lookups laden & Icons anzeigen
+// 👗 Icon-Optionen laden
 async function loadOptions(tableName) {
   const container = document.getElementById(tableName);
   if (!container) return;
@@ -62,12 +52,14 @@ async function loadOptions(tableName) {
   }
 
   lookups[tableName] = {};
+  container.innerHTML = '';
+
   data.forEach(item => {
     lookups[tableName][item.id] = item;
 
     const btn = document.createElement('button');
     btn.className = 'icon-btn';
-    btn.innerHTML = `${item.icon || '❔'}<br>${item.label || item.name}`;
+    btn.innerHTML = `<div>${item.icon || '❔'}</div><small>${item.label || item.name}</small>`;
     btn.onclick = () => {
       selected[tableName] = item.id;
       [...container.children].forEach(b => b.classList.remove('active'));
@@ -95,7 +87,32 @@ async function loadAll() {
 }
 loadAll();
 
-// Kleidung speichern
+// ➕ Neues Icon hinzufügen
+document.getElementById('add-new-option').onclick = async () => {
+  const table = document.getElementById('add-target').value;
+  const name = document.getElementById('new-name').value;
+  const icon = document.getElementById('new-icon').value;
+
+  if (!name || !icon) return alert('Bitte Name und Icon angeben.');
+
+  const column = table === 'clothing_types' ? 'label' : 'name';
+  const insertData = {};
+  insertData[column] = name;
+  insertData.icon = icon;
+
+  const { error } = await supabase.from(table).insert([insertData]);
+  if (error) {
+    alert('Fehler beim Hinzufügen');
+    console.error(error);
+  } else {
+    alert(`Hinzugefügt zu ${table}`);
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-icon').value = '';
+    await loadOptions(table);
+  }
+};
+
+// 💾 Kleidung speichern
 document.getElementById('add-clothing').onclick = async () => {
   if (!user) return alert('Bitte zuerst anmelden.');
 
@@ -118,7 +135,7 @@ document.getElementById('add-clothing').onclick = async () => {
   const { error } = await supabase.from('wardrobe_items').insert([item]);
   if (error) {
     console.error(error);
-    alert('Fehler beim Speichern');
+    alert('Fehler beim Speichern: ' + error.message);
   } else {
     alert('Kleidungsstück erfolgreich hinzugefügt!');
     Object.keys(selected).forEach(k => selected[k] = null);
@@ -126,7 +143,16 @@ document.getElementById('add-clothing').onclick = async () => {
   }
 };
 
-// Outfit-Generator
+// 🎲 Anlass interpretieren → Kategorie
+function interpretCategoryFromOccasion(text) {
+  const t = text.toLowerCase();
+  if (t.includes('hochzeit') || t.includes('abend')) return 'Elegant';
+  if (t.includes('büro') || t.includes('arbeit')) return 'Business';
+  if (t.includes('sport')) return 'Sportlich';
+  return 'Casual';
+}
+
+// 🧠 Outfit-Vorschlag generieren
 document.getElementById('generate-outfit').onclick = async () => {
   if (!user) return alert('Bitte anmelden.');
 
