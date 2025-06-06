@@ -1,11 +1,11 @@
 body {
   font-family: Arial, sans-serif;
   padding: 2rem;
-  background: #f9f9f9;
+  background: #f4f4f4;
 }
 
 main {
-  max-width: 600px;
+  max-width: 700px;
   margin: auto;
   background: white;
   padding: 2rem;
@@ -18,7 +18,6 @@ section {
 }
 
 input, select, button {
-  display: block;
   width: 100%;
   padding: 0.5rem;
   margin-top: 0.5rem;
@@ -27,19 +26,19 @@ input, select, button {
 
 button {
   margin-top: 1rem;
-  background: #007bff;
+  background-color: #007bff;
   color: white;
   border: none;
   cursor: pointer;
 }
 
 button:hover {
-  background: #0056b3;
+  background-color: #0056b3;
 }
 
 #outfit-result {
-  background: #f0f0f0;
+  background: #eef;
   padding: 1rem;
   margin-top: 1rem;
-  border-radius: 5px;
+  border-radius: 4px;
 }
