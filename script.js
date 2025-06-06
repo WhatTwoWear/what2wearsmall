@@ -28,7 +28,7 @@ document.getElementById('signup').onclick = async () => {
   alert('Registrierung erfolgreich – E-Mail bestätigen!');
 };
 
-// Optionen laden (Kategorien etc.)
+// Optionen laden (z. B. Marken, Stoffe, etc.)
 async function loadOptions(tableName) {
   const container = document.getElementById(tableName);
   if (!container) return;
@@ -63,7 +63,7 @@ async function loadAll() {
 }
 loadAll();
 
-// Icon hinzufügen
+// Neues Icon hinzufügen
 document.getElementById('add-new-option').onclick = async () => {
   const table = document.getElementById('add-target').value;
   const name = document.getElementById('new-name').value;
@@ -121,7 +121,7 @@ document.getElementById('add-clothing').onclick = async () => {
   document.getElementById('clothing-image').value = '';
 };
 
-// 🎲 Outfit Generator
+// 🎲 Outfit Generator (inkl. Debug-Logs)
 const REQUIRED_CATEGORIES = {
   top: ['Oberteil', 'Einteiler'],
   bottom: ['Unterteil', 'Einteiler'],
@@ -147,30 +147,57 @@ function findItemByCategory(items, group) {
 
 document.getElementById('generate-outfit').onclick = async () => {
   if (!user) return alert('Bitte anmelden.');
+
   const occasion = document.getElementById('occasion').value;
   const categoryName = interpretCategoryFromOccasion(occasion);
   const category = Object.values(lookups.categories).find(c => c.name === categoryName);
-  if (!category) return alert('Kategorie nicht gefunden.');
 
-  const { data: ownItems } = await supabase
+  console.log('🧠 Anlass:', occasion);
+  console.log('🧩 Erkannte Kategorie:', categoryName);
+  if (!category) {
+    alert(`Kategorie "${categoryName}" nicht gefunden.`);
+    return;
+  }
+
+  const { data: ownItems, error: loadError } = await supabase
     .from('wardrobe_items')
     .select('*')
     .eq('user_id', user.id)
     .eq('category_id', category.id);
 
+  if (loadError) {
+    console.error('❌ Fehler beim Laden eigener Kleidungsstücke:', loadError);
+    alert('Fehler beim Laden deiner Kleidung.');
+    return;
+  }
+
+  console.log('🧺 Eigene Kleidungsstücke:', ownItems);
+
   const outfit = {};
   for (let [key, group] of Object.entries(REQUIRED_CATEGORIES)) {
-    outfit[key] = findItemByCategory(ownItems, group);
+    const found = findItemByCategory(ownItems, group);
+    outfit[key] = found || null;
+    if (found) {
+      console.log(`✅ Eigener Treffer für "${key}":`, found);
+    } else {
+      console.log(`❌ Kein eigenes Teil für "${key}"`);
+    }
   }
 
   let foreignUsed = false;
 
   if (Object.values(outfit).some(i => !i)) {
-    const { data: others } = await supabase
+    console.log('🔁 Suche fehlende Teile bei anderen Nutzern...');
+
+    const { data: others, error: otherErr } = await supabase
       .from('wardrobe_items')
       .select('*')
       .neq('user_id', user.id)
       .eq('category_id', category.id);
+
+    if (otherErr) {
+      console.error('❌ Fehler beim Laden anderer Kleidungsstücke:', otherErr);
+    }
 
     for (let [key, group] of Object.entries(REQUIRED_CATEGORIES)) {
       if (!outfit[key]) {
@@ -178,6 +205,9 @@ document.getElementById('generate-outfit').onclick = async () => {
         if (found) {
           outfit[key] = found;
           foreignUsed = true;
+          console.log(`🔄 Fremder Treffer für "${key}":`, found);
+        } else {
+          console.log(`🚫 Auch bei anderen kein Treffer für "${key}"`);
         }
       }
     }
@@ -185,6 +215,7 @@ document.getElementById('generate-outfit').onclick = async () => {
 
   const result = document.getElementById('outfit-result');
   result.innerHTML = `<h3>Outfit für "${occasion}":</h3>`;
+
   if (foreignUsed) {
     const warning = document.createElement('p');
     warning.textContent = '⚠️ Teile stammen von anderen Nutzern.';
@@ -192,25 +223,29 @@ document.getElementById('generate-outfit').onclick = async () => {
     result.appendChild(warning);
   }
 
-  for (const key in outfit) {
-    const item = outfit[key];
-    if (!item) continue;
+  if (Object.values(outfit).every(i => i)) {
+    for (const key in outfit) {
+      const item = outfit[key];
+      const label = lookups.clothing_types[item.clothing_type_id]?.label || key;
+      const brand = lookups.brands[item.brand_id]?.name || '';
+      const p = document.createElement('p');
+      p.textContent = `${label}${brand ? ' – ' + brand : ''}`;
 
-    const label = lookups.clothing_types[item.clothing_type_id]?.label || key;
-    const brand = lookups.brands[item.brand_id]?.name || '';
-    const desc = `${label}${brand ? ' – ' + brand : ''}`;
-    const p = document.createElement('p');
-    p.textContent = desc;
+      if (item.image_url) {
+        const img = document.createElement('img');
+        img.src = item.image_url;
+        img.alt = label;
+        img.style.maxWidth = '100px';
+        img.style.marginBottom = '0.5rem';
+        result.appendChild(img);
+      }
 
-    if (item.image_url) {
-      const img = document.createElement('img');
-      img.src = item.image_url;
-      img.alt = label;
-      img.style.maxWidth = '100px';
-      img.style.marginBottom = '0.5rem';
-      result.appendChild(img);
+      result.appendChild(p);
     }
-
+  } else {
+    const p = document.createElement('p');
+    p.textContent = '❌ Kein vollständiges Outfit gefunden.';
+    p.style.color = 'gray';
     result.appendChild(p);
   }
 };
