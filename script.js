@@ -140,8 +140,8 @@ function interpretCategoryFromOccasion(text) {
 
 function findItemByCategory(items, group) {
   return items.find(item => {
-    const label = lookups.clothing_types[item.clothing_type_id]?.label;
-    return group.includes(label);
+    const cat = lookups.clothing_types[item.clothing_type_id]?.category;
+    return group.includes(cat);
   });
 }
 
