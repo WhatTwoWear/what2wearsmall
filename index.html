@@ -8,46 +8,29 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <main>
-    <h1>🧥 What2Wear</h1>
+  <!-- 🔐 Auth -->
+  <section id="auth-section">
+    <h2>🔐 Anmeldung / Registrierung</h2>
+    <input type="email" id="email" placeholder="E-Mail" />
+    <input type="password" id="password" placeholder="Passwort" />
+    <button id="login">Anmelden</button>
+    <button id="signup">Registrieren</button>
+    <p id="auth-status"></p>
+  </section>
 
-    <!-- 🔐 Auth -->
-    <section id="auth-section">
-      <h2>🔐 Anmeldung / Registrierung</h2>
-      <input type="email" id="email" placeholder="E-Mail" />
-      <input type="password" id="password" placeholder="Passwort" />
-      <button id="login">Anmelden</button>
-      <button id="signup">Registrieren</button>
-      <p id="auth-status"></p>
-    </section>
-
-    <!-- 👕 Kleidung hinzufügen -->
+  <!-- App-Inhalte nur sichtbar nach Login -->
+  <main id="app-content" style="display: none;">
+    <!-- Kleidung hinzufügen -->
     <section>
-      <h2>👕 Neues Kleidungsstück</h2>
-      <form id="add-clothing-form">
-        <label>Typ:</label>
-        <select id="clothing_type_id"><option value="">Typ wählen</option></select>
-
-        <label>Marke:</label>
-        <select id="brand_id"><option value="">Marke wählen</option></select>
-
-        <label>Kategorie:</label>
-        <select id="category_id"><option value="">Kategorie wählen</option></select>
-
-        <label>Farbe:</label>
-        <select id="color_id"><option value="">Farbe wählen</option></select>
-
-        <label>Stoff:</label>
-        <select id="fabric_id"><option value="">Stoff wählen</option></select>
-
-        <label>Muster:</label>
-        <select id="pattern_id"><option value="">Muster wählen</option></select>
-
-        <label>Schnitt:</label>
-        <select id="fit_id"><option value="">Schnitt wählen</option></select>
-
-        <button type="submit">Hinzufügen</button>
-      </form>
+      <h2>👗 Kleidungsstück hinzufügen</h2>
+      <div id="clothing_type_id" class="icon-grid"></div>
+      <div id="brand_id" class="icon-grid"></div>
+      <div id="category_id" class="icon-grid"></div>
+      <div id="color_id" class="icon-grid"></div>
+      <div id="fabric_id" class="icon-grid"></div>
+      <div id="pattern_id" class="icon-grid"></div>
+      <div id="fit_id" class="icon-grid"></div>
+      <button id="add-clothing">Hinzufügen</button>
     </section>
 
     <!-- 🎲 Generator -->
@@ -58,6 +41,7 @@
       <div id="outfit-result"></div>
     </section>
   </main>
+
   <script src="script.js" defer></script>
 </body>
 </html>
