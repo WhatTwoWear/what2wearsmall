@@ -50,10 +50,29 @@
       <button id="add-clothing">Hinzufügen</button>
     </section>
 
+    <!-- ➕ Neues Icon hinzufügen -->
+    <section>
+      <h2>➕ Neues Icon hinzufügen</h2>
+      <label>Tabelle wählen:</label>
+      <select id="add-target">
+        <option value="brands">Marke</option>
+        <option value="colors">Farbe</option>
+        <option value="fabrics">Stoff</option>
+        <option value="patterns">Muster</option>
+        <option value="fits">Schnitt</option>
+        <option value="categories">Kategorie</option>
+        <option value="clothing_types">Kleidungstyp</option>
+      </select>
+
+      <input type="text" id="new-name" placeholder="Name (z. B. Nike)" />
+      <input type="text" id="new-icon" placeholder="Icon (z. B. 👟 oder 🟩)" />
+      <button id="add-new-option">Hinzufügen</button>
+    </section>
+
     <!-- 🎲 Outfit Generator -->
     <section>
       <h2>🎲 Outfit Generator</h2>
-      <input type="text" id="occasion" placeholder="Anlass beschreiben (z.B. Hochzeit)" />
+      <input type="text" id="occasion" placeholder="Anlass beschreiben (z. B. Hochzeit)" />
       <button id="generate-outfit">Outfit generieren</button>
       <div id="outfit-result"></div>
     </section>
