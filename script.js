@@ -1,14 +1,14 @@
-// Supabase-Verbindung
+// Supabase Initialisierung
 const SUPABASE_URL = 'https://crwtuozpzgykmcocpkwa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyd3R1b3pwemd5a21jb2Nwa3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTU4MjksImV4cCI6MjA2NDE5MTgyOX0.-U59i0IWdbZhqGhSWzBoLV--uzuFWPbJgwKLNUkx9yM';
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Statusvariablen
 let user = null;
 const lookups = {};
 const selected = {};
 
-// 🔐 Login
+// Login
 document.getElementById('login').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -25,7 +25,7 @@ document.getElementById('login').onclick = async () => {
   document.getElementById('app-content').style.display = 'block';
 };
 
-// 🔐 Registrierung
+// Registrierung
 document.getElementById('signup').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -40,7 +40,7 @@ document.getElementById('signup').onclick = async () => {
   alert('Registrierung erfolgreich. Bitte E-Mail bestätigen.');
 };
 
-// 👗 Icon-Optionen laden
+// Daten aus Supabase laden und als Buttons anzeigen
 async function loadOptions(tableName) {
   const container = document.getElementById(tableName);
   if (!container) return;
@@ -87,7 +87,7 @@ async function loadAll() {
 }
 loadAll();
 
-// ➕ Neues Icon hinzufügen
+// Neues Icon zur Datenbank hinzufügen
 document.getElementById('add-new-option').onclick = async () => {
   const table = document.getElementById('add-target').value;
   const name = document.getElementById('new-name').value;
@@ -112,9 +112,32 @@ document.getElementById('add-new-option').onclick = async () => {
   }
 };
 
-// 💾 Kleidung speichern
+// Kleidungsstück speichern inkl. Bild-Upload
 document.getElementById('add-clothing').onclick = async () => {
   if (!user) return alert('Bitte zuerst anmelden.');
+
+  const fileInput = document.getElementById('clothing-image');
+  const file = fileInput.files[0];
+  let image_url = null;
+
+  if (file) {
+    const fileName = `${user.id}/${Date.now()}_${file.name}`;
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('wardrobe-images')
+      .upload(fileName, file);
+
+    if (uploadError) {
+      console.error(uploadError);
+      return alert('Fehler beim Hochladen des Bildes');
+    }
+
+    const { data: publicUrlData } = supabase
+      .storage
+      .from('wardrobe-images')
+      .getPublicUrl(fileName);
+
+    image_url = publicUrlData.publicUrl;
+  }
 
   const item = {
     user_id: user.id,
@@ -124,7 +147,8 @@ document.getElementById('add-clothing').onclick = async () => {
     color_id: selected.colors,
     fabric_id: selected.fabrics,
     pattern_id: selected.patterns,
-    fit_id: selected.fits
+    fit_id: selected.fits,
+    image_url: image_url
   };
 
   if (Object.values(item).some(v => !v)) {
@@ -138,12 +162,12 @@ document.getElementById('add-clothing').onclick = async () => {
     alert('Fehler beim Speichern: ' + error.message);
   } else {
     alert('Kleidungsstück erfolgreich hinzugefügt!');
-    Object.keys(selected).forEach(k => selected[k] = null);
     document.querySelectorAll('.icon-btn').forEach(btn => btn.classList.remove('active'));
+    fileInput.value = '';
   }
 };
 
-// 🎲 Anlass interpretieren → Kategorie
+// Kategorie aus Anlass ableiten
 function interpretCategoryFromOccasion(text) {
   const t = text.toLowerCase();
   if (t.includes('hochzeit') || t.includes('abend')) return 'Elegant';
@@ -152,7 +176,7 @@ function interpretCategoryFromOccasion(text) {
   return 'Casual';
 }
 
-// 🧠 Outfit-Vorschlag generieren
+// Outfit-Vorschlag basierend auf Anlass
 document.getElementById('generate-outfit').onclick = async () => {
   if (!user) return alert('Bitte anmelden.');
 
@@ -180,7 +204,7 @@ document.getElementById('generate-outfit').onclick = async () => {
   resultBox.innerHTML = `<h3>Outfit-Vorschlag für "${occasionText}":</h3>`;
 
   data.forEach(item => {
-    const row = [
+    const text = [
       lookups.clothing_types[item.clothing_type_id]?.label,
       lookups.brands[item.brand_id]?.name,
       lookups.colors[item.color_id]?.name,
@@ -190,7 +214,17 @@ document.getElementById('generate-outfit').onclick = async () => {
     ].filter(Boolean).join(" | ");
 
     const p = document.createElement('p');
-    p.textContent = row;
+    p.textContent = text;
+
+    if (item.image_url) {
+      const img = document.createElement('img');
+      img.src = item.image_url;
+      img.alt = 'Kleidungsstück';
+      img.style.maxWidth = '100px';
+      img.style.margin = '0.5rem 0';
+      resultBox.appendChild(img);
+    }
+
     resultBox.appendChild(p);
   });
 };
