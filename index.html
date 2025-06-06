@@ -9,7 +9,7 @@
 </head>
 <body>
 
-  <!-- 🔐 Auth-Bereich -->
+  <!-- 🔐 Authentifizierung -->
   <section id="auth-section">
     <h2>🔐 Anmeldung / Registrierung</h2>
     <input type="email" id="email" placeholder="E-Mail" />
@@ -19,14 +19,14 @@
     <p id="auth-status"></p>
   </section>
 
-  <!-- 🧥 App-Inhalte (nur sichtbar nach Login) -->
+  <!-- 📦 App-Bereich -->
   <main id="app-content" style="display: none;">
 
-    <!-- 👗 Kleidungsstück hinzufügen -->
+    <!-- 👕 Kleidung hinzufügen -->
     <section>
-      <h2>👗 Neues Kleidungsstück</h2>
+      <h2>👕 Kleidungsstück hinzufügen</h2>
 
-      <label>Typ:</label>
+      <label>Kleidungstyp:</label>
       <div id="clothing_types" class="icon-grid"></div>
 
       <label>Marke:</label>
@@ -50,13 +50,13 @@
       <label>Bild hochladen:</label>
       <input type="file" id="clothing-image" accept="image/*" />
 
-      <button id="add-clothing">Hinzufügen</button>
+      <button id="add-clothing">Kleidungsstück speichern</button>
     </section>
 
     <!-- ➕ Neues Icon hinzufügen -->
     <section>
       <h2>➕ Neues Icon hinzufügen</h2>
-      <label>Tabelle wählen:</label>
+      <label>Bereich:</label>
       <select id="add-target">
         <option value="brands">Marke</option>
         <option value="colors">Farbe</option>
@@ -68,14 +68,14 @@
       </select>
 
       <input type="text" id="new-name" placeholder="Name (z. B. Nike)" />
-      <input type="text" id="new-icon" placeholder="Icon (z. B. 👟 oder 🟩)" />
+      <input type="text" id="new-icon" placeholder="Icon (z. B. 👟 oder 🧢)" />
       <button id="add-new-option">Hinzufügen</button>
     </section>
 
-    <!-- 🎲 Outfit Generator -->
+    <!-- 🎲 Outfit-Generator -->
     <section>
-      <h2>🎲 Outfit Generator</h2>
-      <input type="text" id="occasion" placeholder="Anlass beschreiben (z. B. Hochzeit)" />
+      <h2>🎲 Outfit generieren</h2>
+      <input type="text" id="occasion" placeholder="Anlass eingeben (z. B. Hochzeit, Sport...)" />
       <button id="generate-outfit">Outfit generieren</button>
       <div id="outfit-result"></div>
     </section>
