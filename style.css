@@ -36,3 +36,10 @@ button {
 button:hover {
   background: #0056b3;
 }
+
+#outfit-result {
+  background: #f0f0f0;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 5px;
+}
