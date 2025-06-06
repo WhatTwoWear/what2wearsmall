@@ -2,86 +2,95 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>What2Wear</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <header>
+    <h1>👗 What2Wear</h1>
+    <p id="auth-status">Nicht angemeldet</p>
+  </header>
 
-  <!-- 🔐 Authentifizierung -->
-  <section id="auth-section">
-    <h2>🔐 Anmeldung / Registrierung</h2>
+  <!-- 🔐 Auth -->
+  <section id="auth">
     <input type="email" id="email" placeholder="E-Mail" />
     <input type="password" id="password" placeholder="Passwort" />
     <button id="login">Anmelden</button>
     <button id="signup">Registrieren</button>
-    <p id="auth-status"></p>
   </section>
 
-  <!-- 📦 App-Bereich -->
+  <!-- ✅ App Content -->
   <main id="app-content" style="display: none;">
-
-    <!-- 👕 Kleidung hinzufügen -->
     <section>
-      <h2>👕 Kleidungsstück hinzufügen</h2>
+      <h2>👚 Kleidungsstück hinzufügen</h2>
 
-      <label>Kleidungstyp:</label>
-      <div id="clothing_types" class="icon-grid"></div>
+      <div class="option-group">
+        <h4>👕 Clothing Type</h4>
+        <div id="clothing_types" class="icon-container"></div>
+      </div>
+      <div class="option-group">
+        <h4>🏷️ Marke</h4>
+        <div id="brands" class="icon-container"></div>
+      </div>
+      <div class="option-group">
+        <h4>🎯 Kategorie</h4>
+        <div id="categories" class="icon-container"></div>
+      </div>
+      <div class="option-group">
+        <h4>🎨 Farbe</h4>
+        <div id="colors" class="icon-container"></div>
+      </div>
+      <div class="option-group">
+        <h4>🧵 Stoff</h4>
+        <div id="fabrics" class="icon-container"></div>
+      </div>
+      <div class="option-group">
+        <h4>🎭 Muster</h4>
+        <div id="patterns" class="icon-container"></div>
+      </div>
+      <div class="option-group">
+        <h4>🪡 Schnitt</h4>
+        <div id="fits" class="icon-container"></div>
+      </div>
 
-      <label>Marke:</label>
-      <div id="brands" class="icon-grid"></div>
+      <label for="clothing-image">📸 Bild hochladen</label>
+      <input type="file" id="clothing-image" />
 
-      <label>Kategorie:</label>
-      <div id="categories" class="icon-grid"></div>
-
-      <label>Farbe:</label>
-      <div id="colors" class="icon-grid"></div>
-
-      <label>Stoff:</label>
-      <div id="fabrics" class="icon-grid"></div>
-
-      <label>Muster:</label>
-      <div id="patterns" class="icon-grid"></div>
-
-      <label>Schnitt (Fit):</label>
-      <div id="fits" class="icon-grid"></div>
-
-      <label>Bild hochladen:</label>
-      <input type="file" id="clothing-image" accept="image/*" />
-
-      <button id="add-clothing">Kleidungsstück speichern</button>
+      <button id="add-clothing">In Kleiderschrank legen</button>
     </section>
 
-    <!-- ➕ Neues Icon hinzufügen -->
-    <section>
-      <h2>➕ Neues Icon hinzufügen</h2>
-      <label>Bereich:</label>
-      <select id="add-target">
-        <option value="brands">Marke</option>
-        <option value="colors">Farbe</option>
-        <option value="fabrics">Stoff</option>
-        <option value="patterns">Muster</option>
-        <option value="fits">Schnitt</option>
-        <option value="categories">Kategorie</option>
-        <option value="clothing_types">Kleidungstyp</option>
-      </select>
+    <hr />
 
-      <input type="text" id="new-name" placeholder="Name (z. B. Nike)" />
-      <input type="text" id="new-icon" placeholder="Icon (z. B. 👟 oder 🧢)" />
-      <button id="add-new-option">Hinzufügen</button>
-    </section>
-
-    <!-- 🎲 Outfit-Generator -->
+    <!-- 🎲 Generator -->
     <section>
-      <h2>🎲 Outfit generieren</h2>
-      <input type="text" id="occasion" placeholder="Anlass eingeben (z. B. Hochzeit, Sport...)" />
+      <h2>🎲 Outfit Generator</h2>
+      <input type="text" id="occasion" placeholder="Anlass eingeben (z.B. Sport, Hochzeit)" />
       <button id="generate-outfit">Outfit generieren</button>
       <div id="outfit-result"></div>
     </section>
 
+    <hr />
+
+    <!-- ➕ Neue Optionen -->
+    <section>
+      <h2>➕ Neue Auswahloption hinzufügen</h2>
+      <select id="add-target">
+        <option value="brands">Marke</option>
+        <option value="colors">Farbe</option>
+        <option value="categories">Kategorie</option>
+        <option value="clothing_types">Kleidungsart</option>
+        <option value="fabrics">Stoff</option>
+        <option value="patterns">Muster</option>
+        <option value="fits">Schnitt</option>
+      </select>
+      <input type="text" id="new-name" placeholder="Name" />
+      <input type="text" id="new-icon" placeholder="Icon (z.B. 👕)" />
+      <button id="add-new-option">Neuen Eintrag hinzufügen</button>
+    </section>
   </main>
 
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
