@@ -11,30 +11,46 @@
   <main>
     <h1>🧥 What2Wear</h1>
 
-    <!-- 📅 Kalender -->
-    <section>
-      <h2>📅 Kalender</h2>
-      <input type="date" id="calendar" />
+    <!-- 🔐 Auth -->
+    <section id="auth-section">
+      <h2>🔐 Anmeldung / Registrierung</h2>
+      <input type="email" id="email" placeholder="E-Mail" />
+      <input type="password" id="password" placeholder="Passwort" />
+      <button id="login">Anmelden</button>
+      <button id="signup">Registrieren</button>
+      <p id="auth-status"></p>
     </section>
 
-    <!-- 👗 Garderobe -->
+    <!-- 👕 Kleidung hinzufügen -->
     <section>
-      <h2>👗 Garderobe hinzufügen</h2>
+      <h2>👕 Neues Kleidungsstück</h2>
       <form id="add-clothing-form">
-        <label for="clothing-type">Typ:</label>
-        <input type="text" id="clothing-type" placeholder="z.B. Oberteil" required />
+        <label>Typ:</label>
+        <select id="clothing_type_id"><option value="">Typ wählen</option></select>
 
-        <label for="brand">Marke:</label>
-        <select id="brand"><option value="">Bitte wählen</option></select>
+        <label>Marke:</label>
+        <select id="brand_id"><option value="">Marke wählen</option></select>
 
-        <label for="category">Kategorie:</label>
-        <select id="category"><option value="">Bitte wählen</option></select>
+        <label>Kategorie:</label>
+        <select id="category_id"><option value="">Kategorie wählen</option></select>
+
+        <label>Farbe:</label>
+        <select id="color_id"><option value="">Farbe wählen</option></select>
+
+        <label>Stoff:</label>
+        <select id="fabric_id"><option value="">Stoff wählen</option></select>
+
+        <label>Muster:</label>
+        <select id="pattern_id"><option value="">Muster wählen</option></select>
+
+        <label>Schnitt:</label>
+        <select id="fit_id"><option value="">Schnitt wählen</option></select>
 
         <button type="submit">Hinzufügen</button>
       </form>
     </section>
 
-    <!-- 🎲 Outfit Generator -->
+    <!-- 🎲 Generator -->
     <section>
       <h2>🎲 Outfit Generator</h2>
       <input type="text" id="occasion" placeholder="Anlass beschreiben (z.B. Hochzeit)" />
