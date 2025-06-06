@@ -57,6 +57,13 @@ input:focus, select:focus {
   outline: none;
 }
 
+/* Datei-Upload */
+input[type="file"] {
+  padding: 0.4rem;
+  background: #fff;
+  border: 1px dashed #aaa;
+}
+
 /* Button */
 button {
   background-color: #000;
