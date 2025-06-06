@@ -2,10 +2,12 @@ const { createClient } = supabase;
 
 const SUPABASE_URL = 'https://crwtuozpzgykmcocpkwa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyd3R1b3pwemd5a21jb2Nwa3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTU4MjksImV4cCI6MjA2NDE5MTgyOX0.-U59i0IWdbZhqGhSWzBoLV--uzuFWPbJgwKLNUkx9yM';
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const userId = 'demo-user-id';
+const userId = 'demo-user-id'; // Mit Auth ersetzen bei Bedarf
 
+// Anlass-zu-Kategorie-Erkennung
 function interpretCategoryFromOccasion(text) {
   const normalized = text.toLowerCase();
   if (normalized.includes('sport')) return 'Sportlich';
@@ -16,14 +18,24 @@ function interpretCategoryFromOccasion(text) {
   return 'Casual';
 }
 
+// Lookup-Daten (Brand + Kategorie)
 let categories = {};
 let brands = {};
+
 async function loadLookups() {
   const [catRes, brandRes] = await Promise.all([
     supabase.from('categories').select('*'),
     supabase.from('brands').select('*')
   ]);
-  catRes.data.forEach(cat => categories[cat.name] = cat.id);
+
+  catRes.data.forEach(cat => {
+    categories[cat.name] = cat.id;
+    const opt = document.createElement('option');
+    opt.value = cat.id;
+    opt.textContent = `${cat.icon || ''} ${cat.name}`;
+    document.getElementById('category').appendChild(opt);
+  });
+
   brandRes.data.forEach(b => {
     brands[b.id] = b.name;
     const opt = document.createElement('option');
@@ -31,15 +43,10 @@ async function loadLookups() {
     opt.textContent = `${b.icon || ''} ${b.name}`;
     document.getElementById('brand').appendChild(opt);
   });
-  catRes.data.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = `${c.icon || ''} ${c.name}`;
-    document.getElementById('category').appendChild(opt);
-  });
 }
 loadLookups();
 
+// Kleidung hinzufügen
 document.getElementById('add-clothing-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const type = document.getElementById('clothing-type').value;
@@ -60,6 +67,7 @@ document.getElementById('add-clothing-form').addEventListener('submit', async (e
   }
 });
 
+// Outfit generieren
 document.getElementById('generate-outfit').addEventListener('click', async () => {
   const occasion = document.getElementById('occasion').value;
   const categoryName = interpretCategoryFromOccasion(occasion);
@@ -75,6 +83,7 @@ document.getElementById('generate-outfit').addEventListener('click', async () =>
 
   if (error || !data.length) return alert('Keine passenden Teile gefunden.');
 
+  // Gruppiere nach clothing_type
   const grouped = {};
   data.forEach(item => {
     if (!grouped[item.clothing_type]) grouped[item.clothing_type] = [];
