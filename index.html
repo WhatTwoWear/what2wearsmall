@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>What2Wear</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <main>
+    <h1>🧥 What2Wear</h1>
+
+    <!-- Kalender -->
+    <section>
+      <h2>📅 Kalender</h2>
+      <input type="date" id="calendar" />
+    </section>
+
+    <!-- Garderobe -->
+    <section>
+      <h2>👗 Garderobe</h2>
+      <form id="add-clothing-form">
+        <label>Typ:</label>
+        <input type="text" id="clothing-type" placeholder="z.B. Oberteil" required />
+
+        <label>Marke:</label>
+        <select id="brand">
+          <option value="">Bitte wählen</option>
+        </select>
+
+        <label>Kategorie:</label>
+        <select id="category">
+          <option value="">Bitte wählen</option>
+        </select>
+
+        <button type="submit">Hinzufügen</button>
+      </form>
+    </section>
+
+    <!-- Generator -->
+    <section>
+      <h2>🎲 Outfit Generator</h2>
+      <input type="text" id="occasion" placeholder="Anlass beschreiben (z.B. Hochzeit)" />
+      <button id="generate-outfit">Outfit generieren</button>
+      <div id="outfit-result"></div>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
