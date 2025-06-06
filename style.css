@@ -1,44 +1,68 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Helvetica Neue', sans-serif;
+  background: #fff;
+  color: #111;
   padding: 2rem;
-  background: #f4f4f4;
 }
 
 main {
-  max-width: 700px;
-  margin: auto;
-  background: white;
+  background: #f2f2f2;
+  border-radius: 12px;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  max-width: 800px;
+  margin: auto;
 }
 
 section {
   margin-bottom: 2rem;
 }
 
-input, select, button {
+input, button {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.7rem;
   margin-top: 0.5rem;
   box-sizing: border-box;
+  font-size: 1rem;
 }
 
 button {
-  margin-top: 1rem;
-  background-color: #007bff;
+  background-color: #000;
   color: white;
   border: none;
   cursor: pointer;
+  margin-top: 1rem;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #333;
+}
+
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.icon-btn {
+  border: 1px solid #ccc;
+  background: white;
+  padding: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 80px;
+  text-align: center;
+  font-size: 1.2rem;
+  transition: 0.2s ease;
+}
+
+.icon-btn.active {
+  border-color: black;
+  background: #e0e0e0;
 }
 
 #outfit-result {
-  background: #eef;
+  background: #eee;
   padding: 1rem;
-  margin-top: 1rem;
-  border-radius: 4px;
+  border-radius: 6px;
 }
