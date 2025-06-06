@@ -1,4 +1,4 @@
-/* Basislayout */
+/* ---------- Basislayout ---------- */
 body {
   font-family: 'Segoe UI', sans-serif;
   margin: 0;
@@ -7,7 +7,6 @@ body {
   color: #333;
 }
 
-/* Header */
 header {
   text-align: center;
   margin-bottom: 2rem;
@@ -21,20 +20,20 @@ header h1 {
   color: #555;
 }
 
-/* Abschnitte */
+/* ---------- Sektionen ---------- */
 section {
   background: #fff;
   padding: 1.5rem;
   margin-bottom: 2rem;
   border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 section h2, section h4 {
   margin-top: 0;
   color: #111;
 }
 
-/* Eingabefelder & Buttons */
+/* ---------- Formularelemente ---------- */
 input[type="email"],
 input[type="password"],
 input[type="text"],
@@ -64,7 +63,7 @@ button:hover {
   background: #444;
 }
 
-/* Icon-Auswahl */
+/* ---------- Icon-Auswahl ---------- */
 .icon-container {
   display: flex;
   flex-wrap: wrap;
@@ -75,15 +74,17 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   border: 2px solid #ccc;
   background: #fafafa;
-  padding: 0.5rem;
-  width: 70px;
-  height: 70px;
-  font-size: 1.2rem;
+  padding: 0.3rem;
+  width: 60px;
+  height: 60px;
+  font-size: 1.1rem;
   border-radius: 6px;
   cursor: pointer;
   transition: border-color 0.3s ease, background 0.3s ease;
+  text-align: center;
 }
 .icon-btn:hover {
   border-color: #888;
@@ -94,26 +95,25 @@ button:hover {
   background: #eee;
 }
 .icon-btn small {
-  font-size: 0.65rem;
-  margin-top: 0.3rem;
+  font-size: 0.6rem;
+  margin-top: 0.25rem;
   color: #333;
-  text-align: center;
 }
 
-/* Outfit-Anzeige */
+/* ---------- Bildanzeige im Outfit ---------- */
 #outfit-result img {
   display: block;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
   border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Option Groups */
+/* ---------- Gruppen und Abstand ---------- */
 .option-group {
   margin-bottom: 1.5rem;
 }
 
-/* Responsive */
+/* ---------- Responsive ---------- */
 @media (max-width: 600px) {
   .icon-container {
     justify-content: center;
@@ -127,8 +127,8 @@ button:hover {
   }
 
   .icon-btn {
-    width: 60px;
-    height: 60px;
+    width: 55px;
+    height: 55px;
     font-size: 1rem;
   }
 }
