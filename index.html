@@ -8,7 +8,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <!-- 🔐 Auth -->
+
+  <!-- 🔐 Auth-Bereich -->
   <section id="auth-section">
     <h2>🔐 Anmeldung / Registrierung</h2>
     <input type="email" id="email" placeholder="E-Mail" />
@@ -18,28 +19,45 @@
     <p id="auth-status"></p>
   </section>
 
-  <!-- App-Inhalte nur sichtbar nach Login -->
+  <!-- 🧥 App-Inhalte (nur sichtbar nach Login) -->
   <main id="app-content" style="display: none;">
-    <!-- Kleidung hinzufügen -->
+
+    <!-- 👗 Kleidungsstück hinzufügen -->
     <section>
-      <h2>👗 Kleidungsstück hinzufügen</h2>
-      <div id="clothing_type_id" class="icon-grid"></div>
-      <div id="brand_id" class="icon-grid"></div>
-      <div id="category_id" class="icon-grid"></div>
-      <div id="color_id" class="icon-grid"></div>
-      <div id="fabric_id" class="icon-grid"></div>
-      <div id="pattern_id" class="icon-grid"></div>
-      <div id="fit_id" class="icon-grid"></div>
+      <h2>👗 Neues Kleidungsstück</h2>
+
+      <label>Typ:</label>
+      <div id="clothing_types" class="icon-grid"></div>
+
+      <label>Marke:</label>
+      <div id="brands" class="icon-grid"></div>
+
+      <label>Kategorie:</label>
+      <div id="categories" class="icon-grid"></div>
+
+      <label>Farbe:</label>
+      <div id="colors" class="icon-grid"></div>
+
+      <label>Stoff:</label>
+      <div id="fabrics" class="icon-grid"></div>
+
+      <label>Muster:</label>
+      <div id="patterns" class="icon-grid"></div>
+
+      <label>Schnitt (Fit):</label>
+      <div id="fits" class="icon-grid"></div>
+
       <button id="add-clothing">Hinzufügen</button>
     </section>
 
-    <!-- 🎲 Generator -->
+    <!-- 🎲 Outfit Generator -->
     <section>
       <h2>🎲 Outfit Generator</h2>
       <input type="text" id="occasion" placeholder="Anlass beschreiben (z.B. Hochzeit)" />
       <button id="generate-outfit">Outfit generieren</button>
       <div id="outfit-result"></div>
     </section>
+
   </main>
 
   <script src="script.js" defer></script>
