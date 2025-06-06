@@ -8,12 +8,12 @@ let user = null;
 const lookups = {};
 const selected = {};
 
-// Authentifizierung
+// Auth
 document.getElementById('login').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return alert('Login fehlgeschlagen.');
+  if (error) return alert('Login fehlgeschlagen');
   user = data.user;
   document.getElementById('auth-status').textContent = `Angemeldet als ${user.email}`;
   document.getElementById('app-content').style.display = 'block';
@@ -23,80 +23,60 @@ document.getElementById('signup').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
   const { error } = await supabase.auth.signUp({ email, password });
-  if (error) return alert('Registrierung fehlgeschlagen.');
-  alert('Registrierung erfolgreich – bitte E-Mail bestätigen.');
+  if (error) return alert('Registrierung fehlgeschlagen');
+  alert('Bitte E-Mail bestätigen.');
 };
 
-// Optionen laden (Farben, Stoffe, Marken etc.)
-async function loadOptions(tableName) {
-  const container = document.getElementById(tableName);
+// Auswahloptionen laden
+async function loadOptions(table) {
+  const container = document.getElementById(table);
   if (!container) return;
-
-  const { data, error } = await supabase.from(tableName).select('*');
-  if (error) return console.error(`Fehler beim Laden von ${tableName}:`, error);
-
-  lookups[tableName] = {};
+  const { data } = await supabase.from(table).select('*');
+  lookups[table] = {};
   container.innerHTML = '';
-
   data.forEach(item => {
-    lookups[tableName][item.id] = item;
-
+    lookups[table][item.id] = item;
     const btn = document.createElement('button');
     btn.className = 'icon-btn';
     btn.innerHTML = `<div>${item.icon || '❔'}</div><small>${item.label || item.name}</small>`;
     btn.onclick = () => {
-      selected[tableName] = item.id;
+      selected[table] = item.id;
       [...container.children].forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     };
-
     container.appendChild(btn);
   });
 }
 
 async function loadAll() {
   const tables = ['clothing_types', 'brands', 'categories', 'colors', 'fabrics', 'patterns', 'fits'];
-  for (let table of tables) {
-    await loadOptions(table);
-  }
+  for (let t of tables) await loadOptions(t);
 }
 loadAll();
 
-// Neues Icon hinzufügen
+// Neues Icon
 document.getElementById('add-new-option').onclick = async () => {
   const table = document.getElementById('add-target').value;
   const name = document.getElementById('new-name').value;
   const icon = document.getElementById('new-icon').value;
-  if (!name || !icon) return alert('Name und Icon erforderlich.');
-
+  if (!name || !icon) return alert('Name und Icon erforderlich');
   const column = table === 'clothing_types' ? 'label' : 'name';
-  const insertData = { [column]: name, icon: icon };
-  const { error } = await supabase.from(table).insert([insertData]);
-  if (error) return alert('Fehler beim Hinzufügen.');
-
+  const { error } = await supabase.from(table).insert([{ [column]: name, icon }]);
+  if (error) return alert('Fehler beim Hinzufügen');
   await loadOptions(table);
-  document.getElementById('new-name').value = '';
-  document.getElementById('new-icon').value = '';
 };
 
 // Kleidungsstück speichern
 document.getElementById('add-clothing').onclick = async () => {
-  if (!user) return alert('Bitte zuerst anmelden.');
-
+  if (!user) return alert('Bitte anmelden');
   const file = document.getElementById('clothing-image').files[0];
   let image_url = null;
-
   if (file) {
-    const fileName = `${user.id}/${Date.now()}_${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from('wardrobe-images')
-      .upload(fileName, file);
-    if (uploadError) return alert('Fehler beim Hochladen des Bildes');
-
-    const { data: publicUrlData } = supabase.storage
-      .from('wardrobe-images')
-      .getPublicUrl(fileName);
-    image_url = publicUrlData.publicUrl;
+    const path = `${user.id}/${Date.now()}_${file.name}`;
+    const { error: uploadError } = await supabase.storage.from('wardrobe-images').upload(path, file);
+    if (uploadError) return alert('Fehler beim Bild-Upload');
+    const { data } = supabase.storage.from('wardrobe-images').getPublicUrl(path);
+    image_url = data.publicUrl;
   }
 
   const item = {
@@ -111,24 +91,15 @@ document.getElementById('add-clothing').onclick = async () => {
     image_url
   };
 
-  if (Object.values(item).some(v => !v)) return alert('Bitte alle Felder auswählen.');
+  if (Object.values(item).some(v => !v && v !== null)) return alert('Bitte alle Felder auswählen');
   const { error } = await supabase.from('wardrobe_items').insert([item]);
   if (error) return alert('Fehler beim Speichern: ' + error.message);
-
-  alert('Kleidungsstück gespeichert.');
+  alert('Gespeichert');
   document.querySelectorAll('.icon-btn').forEach(btn => btn.classList.remove('active'));
   document.getElementById('clothing-image').value = '';
 };
 
-// Outfit-Generator
-const REQUIRED_CATEGORIES = {
-  top: ['Oberteil', 'Einteiler'],
-  bottom: ['Unterteil', 'Einteiler'],
-  shoes: ['Schuhe'],
-  socks: ['Socken'],
-  accessories: ['Accessoire']
-};
-
+// Anlass zu Kategorie
 function interpretCategoryFromOccasion(text) {
   const t = text.toLowerCase();
   if (t.includes('hochzeit') || t.includes('abend')) return 'Elegant';
@@ -137,87 +108,89 @@ function interpretCategoryFromOccasion(text) {
   return 'Casual';
 }
 
+// Outfit-Logik
+const REQUIRED_CATEGORIES = {
+  top: ['Oberteil', 'Einteiler'],
+  bottom: ['Unterteil', 'Einteiler'],
+  shoes: ['Schuhe'],
+  socks: ['Socken'],
+  accessories: ['Accessoire']
+};
+
 function findItemByCategory(items, group) {
-  return items.find(item => {
-    const cat = lookups.clothing_types[item.clothing_type_id]?.category;
-    return group.includes(cat);
-  });
+  return items.find(i => group.includes(lookups.clothing_types[i.clothing_type_id]?.category));
 }
 
 document.getElementById('generate-outfit').onclick = async () => {
-  if (!user) return alert('Bitte anmelden.');
-
+  if (!user) return alert('Bitte anmelden');
   const occasion = document.getElementById('occasion').value;
-  const categoryName = interpretCategoryFromOccasion(occasion);
-  const category = Object.values(lookups.categories).find(c => c.name === categoryName);
+  const catName = interpretCategoryFromOccasion(occasion);
+  const category = Object.values(lookups.categories).find(c => c.name === catName);
+  if (!category) return alert('Kategorie nicht gefunden');
 
-  if (!category) return alert(`Kategorie "${categoryName}" nicht gefunden.`);
-
-  const { data: ownItems } = await supabase
-    .from('wardrobe_items')
-    .select('*')
-    .eq('user_id', user.id)
-    .eq('category_id', category.id);
+  const { data: ownItems } = await supabase.from('wardrobe_items').select('*').eq('user_id', user.id).eq('category_id', category.id);
+  const { data: otherItems } = await supabase.from('wardrobe_items').select('*').neq('user_id', user.id).eq('category_id', category.id);
 
   const outfit = {};
-  for (let [key, group] of Object.entries(REQUIRED_CATEGORIES)) {
-    outfit[key] = findItemByCategory(ownItems, group) || null;
-  }
-
   let foreignUsed = false;
 
-  if (Object.values(outfit).some(i => !i)) {
-    const { data: others } = await supabase
-      .from('wardrobe_items')
-      .select('*')
-      .neq('user_id', user.id)
-      .eq('category_id', category.id);
-
-    for (let [key, group] of Object.entries(REQUIRED_CATEGORIES)) {
-      if (!outfit[key]) {
-        const found = findItemByCategory(others, group);
-        if (found) {
-          outfit[key] = found;
-          foreignUsed = true;
-        }
+  for (let [key, group] of Object.entries(REQUIRED_CATEGORIES)) {
+    const pool = ownItems.filter(i => group.includes(lookups.clothing_types[i.clothing_type_id]?.category));
+    if (pool.length) {
+      outfit[key] = pool[Math.floor(Math.random() * pool.length)];
+    } else {
+      const alt = otherItems.filter(i => group.includes(lookups.clothing_types[i.clothing_type_id]?.category));
+      if (alt.length) {
+        outfit[key] = alt[Math.floor(Math.random() * alt.length)];
+        foreignUsed = true;
+      } else {
+        outfit[key] = null;
       }
     }
   }
 
-  // 🧾 Ausgabe des Outfits – auch wenn Teile fehlen
   const result = document.getElementById('outfit-result');
   result.innerHTML = `<h3>Outfit für "${occasion}":</h3>`;
-
   if (foreignUsed) {
-    const warning = document.createElement('p');
-    warning.textContent = '⚠️ Teile stammen zum Teil von anderen Nutzern.';
-    warning.style.color = 'red';
-    result.appendChild(warning);
+    const warn = document.createElement('p');
+    warn.textContent = '⚠️ Teile stammen von anderen Nutzern';
+    warn.style.color = 'red';
+    result.appendChild(warn);
   }
+
+  const currentOutfit = {};
 
   for (const key in REQUIRED_CATEGORIES) {
     const item = outfit[key];
     const label = key.charAt(0).toUpperCase() + key.slice(1);
-
     const p = document.createElement('p');
+
     if (item) {
       const typeLabel = lookups.clothing_types[item.clothing_type_id]?.label || key;
       const brand = lookups.brands[item.brand_id]?.name || '';
       p.textContent = `${label}: ${typeLabel}${brand ? ' – ' + brand : ''}`;
-
+      currentOutfit[key] = item;
       if (item.image_url) {
         const img = document.createElement('img');
         img.src = item.image_url;
-        img.alt = label;
         img.style.maxWidth = '100px';
-        img.style.marginBottom = '0.5rem';
         result.appendChild(img);
       }
     } else {
       p.textContent = `🚫 Kein ${label} gefunden`;
       p.style.color = 'gray';
+      currentOutfit[key] = null;
     }
 
     result.appendChild(p);
   }
+
+  const likeBtn = document.createElement('button');
+  likeBtn.textContent = '❤️ Outfit speichern';
+  likeBtn.onclick = async () => {
+    const { error } = await supabase.from('liked_outfits').insert([{ user_id: user.id, items: currentOutfit }]);
+    if (error) alert('Fehler beim Speichern: ' + error.message);
+    else alert('Outfit gespeichert!');
+  };
+  result.appendChild(likeBtn);
 };
