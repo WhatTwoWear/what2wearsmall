@@ -27,7 +27,7 @@ document.getElementById('signup').onclick = async () => {
   alert('Bitte E-Mail bestätigen.');
 };
 
-// Auswahloptionen laden
+// Auswahl laden
 async function loadOptions(table) {
   const container = document.getElementById(table);
   if (!container) return;
@@ -54,7 +54,7 @@ async function loadAll() {
 }
 loadAll();
 
-// Neues Icon
+// Neuen Eintrag hinzufügen
 document.getElementById('add-new-option').onclick = async () => {
   const table = document.getElementById('add-target').value;
   const name = document.getElementById('new-name').value;
@@ -66,7 +66,7 @@ document.getElementById('add-new-option').onclick = async () => {
   await loadOptions(table);
 };
 
-// Kleidungsstück speichern
+// Kleidung speichern
 document.getElementById('add-clothing').onclick = async () => {
   if (!user) return alert('Bitte anmelden');
   const file = document.getElementById('clothing-image').files[0];
@@ -99,7 +99,7 @@ document.getElementById('add-clothing').onclick = async () => {
   document.getElementById('clothing-image').value = '';
 };
 
-// Anlass zu Kategorie
+// Anlass in Kategorie umwandeln
 function interpretCategoryFromOccasion(text) {
   const t = text.toLowerCase();
   if (t.includes('hochzeit') || t.includes('abend')) return 'Elegant';
@@ -108,7 +108,7 @@ function interpretCategoryFromOccasion(text) {
   return 'Casual';
 }
 
-// Outfit-Logik
+// Outfit generieren
 const REQUIRED_CATEGORIES = {
   top: ['Oberteil', 'Einteiler'],
   bottom: ['Unterteil', 'Einteiler'],
@@ -159,17 +159,12 @@ document.getElementById('generate-outfit').onclick = async () => {
   }
 
   const currentOutfit = {};
-
   for (const key in REQUIRED_CATEGORIES) {
     const item = outfit[key];
     const label = key.charAt(0).toUpperCase() + key.slice(1);
     const p = document.createElement('p');
-
     if (item) {
-      const typeLabel = lookups.clothing_types[item.clothing_type_id]?.label || key;
-      const brand = lookups.brands[item.brand_id]?.name || '';
-      p.textContent = `${label}: ${typeLabel}${brand ? ' – ' + brand : ''}`;
-      currentOutfit[key] = item;
+      p.textContent = `${label}: ${lookups.clothing_types[item.clothing_type_id]?.label || key}`;
       if (item.image_url) {
         const img = document.createElement('img');
         img.src = item.image_url;
@@ -179,18 +174,92 @@ document.getElementById('generate-outfit').onclick = async () => {
     } else {
       p.textContent = `🚫 Kein ${label} gefunden`;
       p.style.color = 'gray';
-      currentOutfit[key] = null;
     }
-
     result.appendChild(p);
+    currentOutfit[key] = item;
   }
 
+  // Like Button
   const likeBtn = document.createElement('button');
   likeBtn.textContent = '❤️ Outfit speichern';
   likeBtn.onclick = async () => {
-    const { error } = await supabase.from('liked_outfits').insert([{ user_id: user.id, items: currentOutfit }]);
-    if (error) alert('Fehler beim Speichern: ' + error.message);
-    else alert('Outfit gespeichert!');
+    await supabase.from('liked_outfits').insert([{ user_id: user.id, items: currentOutfit }]);
+    alert('Gespeichert!');
   };
   result.appendChild(likeBtn);
+
+  // Datum speichern
+  const dateInput = document.createElement('input');
+  dateInput.type = 'date';
+  dateInput.id = 'plan-date';
+  result.appendChild(dateInput);
+
+  const planBtn = document.createElement('button');
+  planBtn.textContent = '📅 Outfit für Datum speichern';
+  planBtn.onclick = async () => {
+    const date = dateInput.value;
+    if (!date) return alert('Bitte Datum wählen');
+    await supabase.from('planned_outfits').insert([{ user_id: user.id, planned_date: date, items: currentOutfit }]);
+    alert(`Outfit für ${date} gespeichert.`);
+  };
+  result.appendChild(planBtn);
+};
+
+// Geplante Outfits anzeigen
+document.getElementById('load-day').onclick = async () => {
+  const d = document.getElementById('calendar-date').value;
+  if (!d) return alert('Datum wählen');
+  const { data } = await supabase.from('planned_outfits').select('*').eq('user_id', user.id).eq('planned_date', d).limit(1);
+  const res = document.getElementById('calendar-result');
+  res.innerHTML = '';
+  if (!data || !data.length) return res.textContent = 'Kein Outfit geplant.';
+  const outfit = data[0].items;
+  for (const key in outfit) {
+    const item = outfit[key];
+    const p = document.createElement('p');
+    const label = key.charAt(0).toUpperCase() + key.slice(1);
+    if (item) {
+      p.textContent = `${label}: ${lookups.clothing_types[item.clothing_type_id]?.label || key}`;
+      if (item.image_url) {
+        const img = document.createElement('img');
+        img.src = item.image_url;
+        img.style.maxWidth = '80px';
+        res.appendChild(img);
+      }
+    } else {
+      p.textContent = `${label}: —`;
+      p.style.color = 'gray';
+    }
+    res.appendChild(p);
+  }
+};
+
+// Liked Outfits anzeigen
+document.getElementById('load-liked').onclick = async () => {
+  const { data } = await supabase.from('liked_outfits').select('*').eq('user_id', user.id);
+  const container = document.getElementById('liked-outfits');
+  container.innerHTML = '';
+  if (!data.length) return container.textContent = 'Keine gespeicherten Outfits.';
+  data.forEach(outfit => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '1rem';
+    for (const key in outfit.items) {
+      const item = outfit.items[key];
+      const p = document.createElement('p');
+      if (item) {
+        p.textContent = `${key}: ${lookups.clothing_types[item.clothing_type_id]?.label || key}`;
+        if (item.image_url) {
+          const img = document.createElement('img');
+          img.src = item.image_url;
+          img.style.maxWidth = '80px';
+          div.appendChild(img);
+        }
+      } else {
+        p.textContent = `${key}: —`;
+        p.style.color = 'gray';
+      }
+      div.appendChild(p);
+    }
+    container.appendChild(div);
+  });
 };
