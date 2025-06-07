@@ -83,11 +83,15 @@
 
     <hr />
 
-    <!-- ❤️ Gelikte Outfits -->
+    <!-- ❤️ Gelikte Outfits im Karussell -->
     <section>
       <h2>❤️ Lieblingsoutfits</h2>
       <button id="load-liked">Alle anzeigen</button>
-      <div id="liked-outfits"></div>
+      <div id="liked-scroll-container">
+        <button class="scroll-btn" onclick="scrollLiked(-1)">◀</button>
+        <div id="liked-outfits" class="scroll-wrapper"></div>
+        <button class="scroll-btn" onclick="scrollLiked(1)">▶</button>
+      </div>
     </section>
 
     <hr />
