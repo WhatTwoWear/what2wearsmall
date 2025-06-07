@@ -1,4 +1,3 @@
-// Supabase Initialisierung
 const SUPABASE_URL = 'https://crwtuozpzgykmcocpkwa.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyd3R1b3pwemd5a21jb2Nwa3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg2MTU4MjksImV4cCI6MjA2NDE5MTgyOX0.-U59i0IWdbZhqGhSWzBoLV--uzuFWPbJgwKLNUkx9yM';
 
@@ -8,7 +7,6 @@ let user = null;
 const lookups = {};
 const selected = {};
 
-// Auth
 document.getElementById('login').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -16,6 +14,7 @@ document.getElementById('login').onclick = async () => {
   if (error) return alert('Login fehlgeschlagen');
   user = data.user;
   document.getElementById('auth-status').textContent = `Angemeldet als ${user.email}`;
+  document.getElementById('auth').style.display = 'none';
   document.getElementById('app-content').style.display = 'block';
 };
 
@@ -24,10 +23,9 @@ document.getElementById('signup').onclick = async () => {
   const password = document.getElementById('password').value;
   const { error } = await supabase.auth.signUp({ email, password });
   if (error) return alert('Registrierung fehlgeschlagen');
-  alert('Bitte E-Mail bestätigen.');
+  alert('Bestätige deine E-Mail.');
 };
 
-// Auswahl laden
 async function loadOptions(table) {
   const container = document.getElementById(table);
   if (!container) return;
@@ -54,7 +52,6 @@ async function loadAll() {
 }
 loadAll();
 
-// Neuen Eintrag hinzufügen
 document.getElementById('add-new-option').onclick = async () => {
   const table = document.getElementById('add-target').value;
   const name = document.getElementById('new-name').value;
@@ -66,7 +63,6 @@ document.getElementById('add-new-option').onclick = async () => {
   await loadOptions(table);
 };
 
-// Kleidung speichern
 document.getElementById('add-clothing').onclick = async () => {
   if (!user) return alert('Bitte anmelden');
   const file = document.getElementById('clothing-image').files[0];
@@ -99,7 +95,6 @@ document.getElementById('add-clothing').onclick = async () => {
   document.getElementById('clothing-image').value = '';
 };
 
-// Anlass in Kategorie umwandeln
 function interpretCategoryFromOccasion(text) {
   const t = text.toLowerCase();
   if (t.includes('hochzeit') || t.includes('abend')) return 'Elegant';
@@ -108,7 +103,6 @@ function interpretCategoryFromOccasion(text) {
   return 'Casual';
 }
 
-// Outfit generieren
 const REQUIRED_CATEGORIES = {
   top: ['Oberteil', 'Einteiler'],
   bottom: ['Unterteil', 'Einteiler'],
@@ -179,7 +173,6 @@ document.getElementById('generate-outfit').onclick = async () => {
     currentOutfit[key] = item;
   }
 
-  // Like Button
   const likeBtn = document.createElement('button');
   likeBtn.textContent = '❤️ Outfit speichern';
   likeBtn.onclick = async () => {
@@ -188,7 +181,6 @@ document.getElementById('generate-outfit').onclick = async () => {
   };
   result.appendChild(likeBtn);
 
-  // Datum speichern
   const dateInput = document.createElement('input');
   dateInput.type = 'date';
   dateInput.id = 'plan-date';
@@ -205,7 +197,6 @@ document.getElementById('generate-outfit').onclick = async () => {
   result.appendChild(planBtn);
 };
 
-// Geplante Outfits anzeigen
 document.getElementById('load-day').onclick = async () => {
   const d = document.getElementById('calendar-date').value;
   if (!d) return alert('Datum wählen');
@@ -234,32 +225,38 @@ document.getElementById('load-day').onclick = async () => {
   }
 };
 
-// Liked Outfits anzeigen
 document.getElementById('load-liked').onclick = async () => {
   const { data } = await supabase.from('liked_outfits').select('*').eq('user_id', user.id);
   const container = document.getElementById('liked-outfits');
   container.innerHTML = '';
   if (!data.length) return container.textContent = 'Keine gespeicherten Outfits.';
+
   data.forEach(outfit => {
     const div = document.createElement('div');
-    div.style.marginBottom = '1rem';
-    for (const key in outfit.items) {
-      const item = outfit.items[key];
-      const p = document.createElement('p');
+    const items = outfit.items;
+    for (const key in items) {
+      const item = items[key];
       if (item) {
-        p.textContent = `${key}: ${lookups.clothing_types[item.clothing_type_id]?.label || key}`;
+        const label = lookups.clothing_types[item.clothing_type_id]?.label || key;
+        const p = document.createElement('p');
+        p.textContent = `${label}`;
+        div.appendChild(p);
+
         if (item.image_url) {
           const img = document.createElement('img');
           img.src = item.image_url;
-          img.style.maxWidth = '80px';
           div.appendChild(img);
         }
-      } else {
-        p.textContent = `${key}: —`;
-        p.style.color = 'gray';
       }
-      div.appendChild(p);
     }
     container.appendChild(div);
   });
 };
+
+function scrollLiked(dir) {
+  const container = document.querySelector('.scroll-wrapper');
+  container.scrollBy({
+    left: dir * 260,
+    behavior: 'smooth'
+  });
+}
