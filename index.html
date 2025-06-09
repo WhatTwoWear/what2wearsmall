@@ -8,8 +8,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- ⬆️ HEADER mit Logo -->
   <header>
-    <h1>👗 What2Wear</h1>
+    <div class="logo-container">
+      <img src="logo.jpg" alt="What2Wear Logo" class="logo" />
+      <div class="branding">
+        <h1>WHAT2WEAR</h1>
+        <p class="slogan">NO STRESS. JUST DRESS</p>
+      </div>
+    </div>
     <p id="auth-status">Nicht angemeldet</p>
   </header>
 
@@ -83,7 +90,7 @@
 
     <hr />
 
-    <!-- ❤️ Gelikte Outfits im Karussell -->
+    <!-- ❤️ Lieblingsoutfits -->
     <section>
       <h2>❤️ Lieblingsoutfits</h2>
       <button id="load-liked">Alle anzeigen</button>
@@ -96,7 +103,7 @@
 
     <hr />
 
-    <!-- ➕ Neue Optionen hinzufügen -->
+    <!-- ➕ Neue Auswahloption hinzufügen -->
     <section>
       <h2>➕ Neue Auswahloption hinzufügen</h2>
       <select id="add-target">
@@ -114,6 +121,16 @@
     </section>
   </main>
 
+  <!-- 📱 App-Navigation unten -->
+  <nav class="bottom-nav">
+    <a href="#auth" class="nav-link">🔐</a>
+    <a href="#app-content" class="nav-link">🧺</a>
+    <a href="#generate-outfit" class="nav-link">🎲</a>
+    <a href="#calendar-date" class="nav-link">📅</a>
+    <a href="#liked-outfits" class="nav-link">❤️</a>
+  </nav>
+
   <script src="script.js"></script>
 </body>
 </html>
+
