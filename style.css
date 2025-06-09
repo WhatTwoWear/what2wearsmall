@@ -183,3 +183,51 @@ button:hover {
     flex: 0 0 180px;
   }
 }
+/* ---------- Apple-Style: Logo & Branding ---------- */
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+.logo {
+  height: 60px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.branding h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
+.slogan {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+  font-style: italic;
+}
+
+/* ---------- Mobile App-Navigation ---------- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  padding: 0.6rem 0;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+.nav-link {
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: #777;
+  transition: color 0.2s ease;
+}
+.nav-link:hover {
+  color: #000;
+}
+
